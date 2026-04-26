@@ -80,8 +80,6 @@ npm install
 # Run in development
 npm run dev
 
-# Build distributable
-npm run dist
 ```
 
 **Requirements:** Node.js 18+, macOS (for building `.dmg`)
