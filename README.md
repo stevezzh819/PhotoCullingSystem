@@ -31,36 +31,6 @@ QuickD lets you blaze through a folder of JPEGs and decide â€” keep or delete â€
 
 ---
 
-## Screenshots
-
-<table>
-  <tr>
-    <td align="center">
-      <!-- Screenshot: Welcome / folder select screen -->
-      <img src="docs/screenshots/welcome.png" alt="Welcome Screen" width="480"/>
-      <br/><sub><b>Welcome Screen</b></sub>
-    </td>
-    <td align="center">
-      <!-- Screenshot: Culling screen with image -->
-      <img src="docs/screenshots/culling.png" alt="Culling Screen" width="480"/>
-      <br/><sub><b>Culling Screen</b></sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <!-- Screenshot: Summary / review screen -->
-      <img src="docs/screenshots/summary.png" alt="Summary Screen" width="480"/>
-      <br/><sub><b>Review & Delete</b></sub>
-    </td>
-    <td align="center">
-      <!-- Screenshot: All done screen -->
-      <img src="docs/screenshots/done.png" alt="Done Screen" width="480"/>
-      <br/><sub><b>Session Complete</b></sub>
-    </td>
-  </tr>
-</table>
-
----
 
 ## Download
 
