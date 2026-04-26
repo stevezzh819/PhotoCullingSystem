@@ -88,4 +88,4 @@ npm run dev
 
 ## License
 
-MIT © [VIART PTE. LTD.](https://github.com/stevezzh819)
+MIT
