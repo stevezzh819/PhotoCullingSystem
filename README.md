@@ -13,7 +13,7 @@
 
 ## Overview
 
-QuickD lets you blaze through a folder of JPEGs and decide — keep or delete — using only your keyboard. No clicking through menus, no waiting for bloated software to load.
+As photographers, delivering unedited JPEGs often means hours of tedious culling in apps like Lightroom or Capture One. QuickD streamlines the process — fly through your images and decide what to keep or delete using just your keyboard. No menus, no lag, no heavy software.
 
 <!-- Screenshot: Welcome screen / home page -->
 ![Welcome Screen](docs/screenshots/welcome.png)
