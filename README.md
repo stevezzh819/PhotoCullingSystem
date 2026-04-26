@@ -1,7 +1,7 @@
 <div align="center">
   <img src="build/icon.png" alt="QuickD" width="120" />
   <h1>QuickD</h1>
-  <p>Fast, keyboard-driven photo culling for photographers — built for speed, not clicks.</p>
+  <p>Fast, keyboard-driven (vim-mode) photo culling for photographers — built for speed, not clicks.</p>
 
   ![Platform](https://img.shields.io/badge/platform-macOS-black?style=flat-square&logo=apple)
   ![Version](https://img.shields.io/badge/version-1.0.0-blueviolet?style=flat-square)
