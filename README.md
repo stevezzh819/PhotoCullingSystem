@@ -1,7 +1,7 @@
 <div align="center">
   <img src="build/icon.png" alt="QuickD" width="120" />
   <h1>QuickD</h1>
-  <p>Fast, keyboard-driven photo culling for photographers — built for speed, not clicks.</p>
+  <p>Fast, keyboard-driven (vim-mode) photo culling for photographers — built for speed, not clicks.</p>
 
   ![Platform](https://img.shields.io/badge/platform-macOS-black?style=flat-square&logo=apple)
   ![Version](https://img.shields.io/badge/version-1.0.0-blueviolet?style=flat-square)
@@ -13,7 +13,7 @@
 
 ## Overview
 
-QuickD lets you blaze through a folder of JPEGs and decide — keep or delete — using only your keyboard. No clicking through menus, no waiting for bloated software to load.
+As photographers, delivering unedited JPEGs often means hours of tedious culling in apps like Lightroom or Capture One. QuickD streamlines the process — fly through your images and decide what to keep or delete using just your keyboard. No menus, no lag, no heavy software.
 
 <!-- Screenshot: Welcome screen / home page -->
 ![Welcome Screen](docs/screenshots/welcome.png)
@@ -31,36 +31,6 @@ QuickD lets you blaze through a folder of JPEGs and decide — keep or delete �
 
 ---
 
-## Screenshots
-
-<table>
-  <tr>
-    <td align="center">
-      <!-- Screenshot: Welcome / folder select screen -->
-      <img src="docs/screenshots/welcome.png" alt="Welcome Screen" width="480"/>
-      <br/><sub><b>Welcome Screen</b></sub>
-    </td>
-    <td align="center">
-      <!-- Screenshot: Culling screen with image -->
-      <img src="docs/screenshots/culling.png" alt="Culling Screen" width="480"/>
-      <br/><sub><b>Culling Screen</b></sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <!-- Screenshot: Summary / review screen -->
-      <img src="docs/screenshots/summary.png" alt="Summary Screen" width="480"/>
-      <br/><sub><b>Review & Delete</b></sub>
-    </td>
-    <td align="center">
-      <!-- Screenshot: All done screen -->
-      <img src="docs/screenshots/done.png" alt="Done Screen" width="480"/>
-      <br/><sub><b>Session Complete</b></sub>
-    </td>
-  </tr>
-</table>
-
----
 
 ## Download
 
@@ -110,8 +80,6 @@ npm install
 # Run in development
 npm run dev
 
-# Build distributable
-npm run dist
 ```
 
 **Requirements:** Node.js 18+, macOS (for building `.dmg`)
