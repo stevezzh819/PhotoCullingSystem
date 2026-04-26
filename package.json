@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Fast image culling for photographers",
   "author": "VIART PTE. LTD.",
+  "license": "MIT",
   "main": "out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
