@@ -35,14 +35,21 @@ export function FolderSelector({ onFolderSelected }: Props): JSX.Element {
   )
 
   const handleSelectFolder = async (): Promise<void> => {
+    if (isLoading) return
+    setIsLoading(true)
     const folder = await window.api.selectFolder()
-    if (folder) await loadFolder(folder)
+    if (folder) {
+      await loadFolder(folder)
+    } else {
+      setIsLoading(false)
+    }
   }
 
   const handleDrop = useCallback(
     async (e: React.DragEvent) => {
       e.preventDefault()
       setIsDragging(false)
+      if (isLoading) return
       const item = e.dataTransfer.items[0]
       if (!item) return
       const entry = item.webkitGetAsEntry()

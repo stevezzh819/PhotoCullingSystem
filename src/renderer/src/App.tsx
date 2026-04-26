@@ -64,6 +64,25 @@ export default function App(): JSX.Element {
   return (
     <LangProvider>
     <div style={{ width: '100%', height: '100%', background: '#0c0c0e' }}>
+      {screen !== 'culling' && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 10,
+            left: 0,
+            right: 0,
+            textAlign: 'center',
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.2)',
+            letterSpacing: '0.04em',
+            pointerEvents: 'none',
+            zIndex: 9999,
+            userSelect: 'none',
+          }}
+        >
+          © VIART PTE. LTD. 2026
+        </div>
+      )}
       <AnimatePresence mode="wait">
         {screen === 'welcome' && (
           <motion.div key="welcome" style={{ width: '100%', height: '100%' }} {...screenTransition}>

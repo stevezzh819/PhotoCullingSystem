@@ -74,7 +74,7 @@ electron.app.whenReady().then(() => {
   });
 });
 electron.app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") electron.app.quit();
+  electron.app.quit();
 });
 electron.ipcMain.handle("dialog:select-folder", async () => {
   const { canceled, filePaths } = await electron.dialog.showOpenDialog({
