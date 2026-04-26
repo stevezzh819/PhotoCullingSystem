@@ -2,11 +2,59 @@
   "name": "quickd",
   "version": "1.0.0",
   "description": "Fast image culling for photographers",
+  "author": "VIART PTE. LTD.",
   "main": "out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
-    "start": "electron-vite preview"
+    "start": "electron-vite preview",
+    "dist": "electron-vite build && electron-builder --mac",
+    "release": "electron-vite build && electron-builder --mac --publish always"
+  },
+  "build": {
+    "appId": "com.viart.quickd",
+    "productName": "QuickD",
+    "copyright": "© VIART PTE. LTD. 2026",
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "files": [
+      "out/**/*"
+    ],
+    "mac": {
+      "identity": null,
+      "category": "public.app-category.photography",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ]
+    },
+    "dmg": {
+      "title": "QuickD",
+      "background": null,
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "stevezzh819",
+      "repo": "PhotoCullingSystem"
+    }
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
@@ -14,6 +62,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "electron": "^33.0.0",
+    "electron-builder": "^26.8.1",
     "electron-vite": "^2.3.0",
     "typescript": "^5.6.3",
     "vite": "^5.4.10"
@@ -21,6 +70,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
+    "firebase": "^12.12.1",
     "framer-motion": "^11.11.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
