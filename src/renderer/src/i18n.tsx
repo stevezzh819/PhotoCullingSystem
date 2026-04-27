@@ -6,6 +6,7 @@ export type Lang = 'en' | 'zh'
 
 interface Strings {
   // FolderSelector
+  appName: string
   tagline: string
   selectFolder: string
   dragDrop: string
@@ -44,6 +45,7 @@ interface Strings {
 
 const T: Record<Lang, Strings> = {
   en: {
+    appName: 'QuickD',
     tagline: 'Fast image culling for photographers',
     selectFolder: 'Select a folder',
     dragDrop: 'or drag & drop a folder',
@@ -76,6 +78,7 @@ const T: Record<Lang, Strings> = {
     startOver: '← Start over',
   },
   zh: {
+    appName: '快点儿',
     tagline: '摄影师快速筛图工具',
     selectFolder: '选择文件夹',
     dragDrop: '或将文件夹拖放至此',

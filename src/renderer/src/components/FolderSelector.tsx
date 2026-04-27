@@ -156,7 +156,7 @@ export function FolderSelector({ onFolderSelected }: Props): JSX.Element {
               marginBottom: 12,
             }}
           >
-            QuickD
+            {t.appName}
           </div>
           <div
             style={{
