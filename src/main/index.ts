@@ -4,6 +4,8 @@ import { readdirSync } from 'fs'
 import { readFile } from 'fs/promises'
 import { is } from '@electron-toolkit/utils'
 
+const isMac = process.platform === 'darwin'
+
 // Must be called before app is ready
 protocol.registerSchemesAsPrivileged([
   {
@@ -19,7 +21,7 @@ function createWindow(): BrowserWindow {
     minWidth: 960,
     minHeight: 640,
     show: false,
-    titleBarStyle: 'hiddenInset',
+    titleBarStyle: isMac ? 'hiddenInset' : 'hidden',
     backgroundColor: '#0c0c0e',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

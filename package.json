@@ -10,7 +10,9 @@
     "build": "electron-vite build",
     "start": "electron-vite preview",
     "dist": "electron-vite build && electron-builder --mac",
-    "release": "electron-vite build && electron-builder --mac --publish always"
+    "dist:win": "electron-vite build && electron-builder --win",
+    "release": "electron-vite build && electron-builder --mac --publish always",
+    "release:win": "electron-vite build && electron-builder --win --publish always"
   },
   "build": {
     "appId": "com.viart.quickd",
@@ -42,6 +44,15 @@
           ]
         }
       ]
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64", "arm64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     },
     "dmg": {
       "title": "QuickD",
