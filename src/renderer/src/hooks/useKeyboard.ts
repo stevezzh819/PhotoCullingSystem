@@ -12,7 +12,10 @@ export function useKeyboard(keyMap: KeyMap, enabled = true): void {
     const handler = (e: KeyboardEvent): void => {
       if (e.repeat) return
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
-      mapRef.current[e.key]?.()
+      if (mapRef.current[e.key]) {
+        e.preventDefault()
+        mapRef.current[e.key]?.()
+      }
     }
 
     window.addEventListener('keydown', handler)

@@ -10,7 +10,10 @@ const api = {
   deleteFiles: (
     paths: string[]
   ): Promise<Array<{ path: string; ok: boolean; error?: string }>> =>
-    ipcRenderer.invoke('fs:delete-files', paths)
+    ipcRenderer.invoke('fs:delete-files', paths),
+
+  openExternal: (url: string): Promise<void> =>
+    ipcRenderer.invoke('shell:open-external', url),
 }
 
 if (process.contextIsolated) {

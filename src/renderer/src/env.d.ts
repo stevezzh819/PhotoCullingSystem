@@ -7,5 +7,6 @@ interface Window {
     deleteFiles: (
       paths: string[]
     ) => Promise<Array<{ path: string; ok: boolean; error?: string }>>
+    openExternal: (url: string) => Promise<void>
   }
 }

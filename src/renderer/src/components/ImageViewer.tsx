@@ -1,10 +1,12 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { SwipeCard } from './SwipeCard'
+import { SwipeCard, toLocalSrc } from './SwipeCard'
 import { useImageCuller } from '../hooks/useImageCuller'
 import { useKeyboard } from '../hooks/useKeyboard'
 import { useT } from '../i18n'
 import type { EnterFrom } from '../types'
+
+const PAN_STEP = 160
 
 interface Props {
   images: string[]
@@ -25,6 +27,9 @@ export function ImageViewer({ images, folderPath, onDone }: Props): JSX.Element 
   const [enterFrom, setEnterFrom] = useState<EnterFrom>('scale')
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null)
   const isAnimatingRef = useRef(false)
+  const [isZoomed, setIsZoomed] = useState(false)
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 })
+  const [zoomScale, setZoomScale] = useState(0.6)
 
   // ── Decision ───────────────────────────────────────────────────────────────
   const handleDecide = (type: 'keep' | 'delete'): void => {
@@ -63,6 +68,34 @@ export function ImageViewer({ images, folderPath, onDone }: Props): JSX.Element 
     setCardKey((k) => k + 1)
   }
 
+  const exitZoom = useCallback((): void => {
+    setIsZoomed(false)
+    setPanOffset({ x: 0, y: 0 })
+    setZoomScale(0.6)
+  }, [])
+
+  // Zoom keyboard — capture phase to intercept ESC before App.tsx global handler
+  useEffect(() => {
+    if (!isZoomed) return
+    const handler = (e: KeyboardEvent): void => {
+      e.preventDefault()
+      e.stopImmediatePropagation()
+      switch (e.key) {
+        case 'h': setPanOffset(p => ({ ...p, x: p.x + PAN_STEP })); break
+        case 'l': setPanOffset(p => ({ ...p, x: p.x - PAN_STEP })); break
+        case 'k': setPanOffset(p => ({ ...p, y: p.y + PAN_STEP })); break
+        case 'j': setPanOffset(p => ({ ...p, y: p.y - PAN_STEP })); break
+        case 'K': setZoomScale(s => Math.min(3.0, parseFloat((s + 0.1).toFixed(1)))); break  // Shift+K
+        case 'J': setZoomScale(s => Math.max(0.1, parseFloat((s - 0.1).toFixed(1)))); break  // Shift+J
+        case ' ':
+        case 'Escape': exitZoom(); break
+      }
+    }
+    window.addEventListener('keydown', handler, { capture: true })
+    return () => window.removeEventListener('keydown', handler, { capture: true })
+  }, [isZoomed, exitZoom])
+
+  // Normal culling keyboard — disabled while zoomed or on done screen
   useKeyboard({
     j: () => handleDecide('delete'),
     ArrowLeft: () => handleDecide('delete'),
@@ -71,7 +104,8 @@ export function ImageViewer({ images, folderPath, onDone }: Props): JSX.Element 
     h: () => nav(-1),
     l: () => nav(1),
     u: undo,
-  })
+    ' ': () => { setIsZoomed(true); setPanOffset({ x: 0, y: 0 }); setZoomScale(0.6) },
+  }, !isZoomed && !culler.isDone)
 
   const progress = culler.totalCount > 0 ? culler.processedCount / culler.totalCount : 0
   const folderName = basename(folderPath)
@@ -238,6 +272,91 @@ export function ImageViewer({ images, folderPath, onDone }: Props): JSX.Element 
             onExitComplete={handleExitComplete}
           />
         )}
+
+        {/* Zoom overlay */}
+        {isZoomed && culler.currentImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.12 }}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'rgba(0,0,0,0.96)',
+              overflow: 'hidden',
+              cursor: 'crosshair',
+            }}
+            onClick={exitZoom}
+          >
+            {/* Hint bar */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 12,
+                left: 0,
+                right: 0,
+                display: 'flex',
+                justifyContent: 'center',
+                zIndex: 2,
+                pointerEvents: 'none',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 16,
+                  alignItems: 'center',
+                  background: 'rgba(255,255,255,0.06)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 8,
+                  padding: '5px 14px',
+                  fontSize: 11,
+                  color: 'rgba(255,255,255,0.4)',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                <span><span className="key-badge" style={{ fontSize: 10 }}>H</span> <span className="key-badge" style={{ fontSize: 10 }}>J</span> <span className="key-badge" style={{ fontSize: 10 }}>K</span> <span className="key-badge" style={{ fontSize: 10 }}>L</span> Pan</span>
+                <span style={{ opacity: 0.4 }}>·</span>
+                <span><span className="key-badge" style={{ fontSize: 10 }}>⇧J</span> <span className="key-badge" style={{ fontSize: 10 }}>⇧K</span> Zoom</span>
+                <span style={{ opacity: 0.4 }}>·</span>
+                <span
+                  style={{
+                    fontVariantNumeric: 'tabular-nums',
+                    color: 'rgba(255,255,255,0.65)',
+                    fontWeight: 600,
+                    minWidth: 36,
+                    textAlign: 'center',
+                  }}
+                >
+                  {Math.round(zoomScale * 100)}%
+                </span>
+                <span style={{ opacity: 0.4 }}>·</span>
+                <span><span className="key-badge" style={{ fontSize: 10 }}>SPACE</span> Exit</span>
+              </div>
+            </div>
+
+            {/* Image at 100% */}
+            <img
+              src={toLocalSrc(culler.currentImage)}
+              draggable={false}
+              onClick={e => e.stopPropagation()}
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: `translate(calc(-50% + ${panOffset.x}px), calc(-50% + ${panOffset.y}px)) scale(${zoomScale})`,
+                maxWidth: 'none',
+                maxHeight: 'none',
+                width: 'auto',
+                height: 'auto',
+                userSelect: 'none',
+                transition: 'transform 0.08s ease-out',
+              }}
+            />
+          </motion.div>
+        )}
       </div>
 
       {/* Bottom bar */}
@@ -300,6 +419,16 @@ export function ImageViewer({ images, folderPath, onDone }: Props): JSX.Element 
           active={false}
           disabled={!culler.canUndo}
           onClick={undo}
+        />
+        <Sep />
+        <Hint
+          k="SPC"
+          label="Zoom"
+          color="rgba(255,255,255,0.6)"
+          dim="rgba(255,255,255,0.22)"
+          active={isZoomed}
+          disabled={false}
+          onClick={() => { setIsZoomed(true); setPanOffset({ x: 0, y: 0 }) }}
         />
       </div>
     </div>

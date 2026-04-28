@@ -94,6 +94,10 @@ app.on('window-all-closed', () => {
 
 // ── IPC Handlers ──────────────────────────────────────────────────────────────
 
+ipcMain.handle('shell:open-external', (_event, url: string) => {
+  shell.openExternal(url)
+})
+
 ipcMain.handle('dialog:select-folder', async () => {
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ['openDirectory'],

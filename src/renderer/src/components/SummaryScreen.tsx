@@ -1,13 +1,25 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useT } from '../i18n'
+import bmcLogo from '../assets/bmc-logo.png'
+import { toLocalSrc } from './SwipeCard'
 
 interface Props {
   totalImages: number
   toDeletePaths: string[]
+  elapsedMs: number
   onConfirmDelete: () => Promise<void>
   onBack: () => void
   onStartOver: () => void
+}
+
+function formatElapsed(ms: number): string {
+  const s = Math.floor(ms / 1000)
+  if (s < 60) return `${s}s`
+  const m = Math.floor(s / 60)
+  const rem = s % 60
+  if (m < 60) return `${m}m ${rem}s`
+  return `${Math.floor(m / 60)}h ${m % 60}m`
 }
 
 function basename(filePath: string): string {
@@ -17,6 +29,7 @@ function basename(filePath: string): string {
 export function SummaryScreen({
   totalImages,
   toDeletePaths,
+  elapsedMs,
   onConfirmDelete,
   onBack,
   onStartOver,
@@ -129,17 +142,37 @@ export function SummaryScreen({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div
-            style={{
-              fontSize: 26,
-              fontWeight: 700,
-              letterSpacing: '-0.5px',
-              marginBottom: 6,
-            }}
-          >
-            {t.reviewDeletions}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+            <div
+              style={{
+                fontSize: 26,
+                fontWeight: 700,
+                letterSpacing: '-0.5px',
+              }}
+            >
+              {t.reviewDeletions}
+            </div>
+            {elapsedMs > 0 && (
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: 'rgba(255,255,255,0.25)',
+                  letterSpacing: '0.03em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                }}
+              >
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                  <circle cx="6" cy="6" r="5" stroke="rgba(255,255,255,0.3)" strokeWidth="1.2"/>
+                  <path d="M6 3.5V6L7.5 7.5" stroke="rgba(255,255,255,0.3)" strokeWidth="1.2" strokeLinecap="round"/>
+                </svg>
+                {formatElapsed(elapsedMs)}
+              </div>
+            )}
           </div>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>
+          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>
             {t.keptWillDelete(keptCount, toDeletePaths.length)}
           </div>
         </motion.div>
@@ -156,7 +189,7 @@ export function SummaryScreen({
           <StatCard value={totalImages} label={t.statTotal} color="rgba(255,255,255,0.5)" />
         </motion.div>
 
-        {/* File list */}
+        {/* Image grid */}
         {toDeletePaths.length > 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -168,8 +201,11 @@ export function SummaryScreen({
               borderRadius: 14,
               border: '1px solid rgba(255,255,255,0.07)',
               background: 'rgba(255,69,58,0.04)',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
+            {/* Grid header */}
             <div
               style={{
                 padding: '10px 16px',
@@ -179,40 +215,93 @@ export function SummaryScreen({
                 color: 'rgba(255,255,255,0.3)',
                 letterSpacing: '0.08em',
                 textTransform: 'uppercase',
+                flexShrink: 0,
               }}
             >
               {t.filesToDelete}
             </div>
-            <div style={{ overflowY: 'auto', maxHeight: 'calc(100% - 36px)', padding: '4px 0' }}>
+
+            {/* Scrollable grid */}
+            <div
+              style={{
+                overflowY: 'auto',
+                flex: 1,
+                padding: 12,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
+                gap: 10,
+                alignContent: 'start',
+              }}
+            >
               {toDeletePaths.map((filePath, i) => (
                 <motion.div
                   key={filePath}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.14 + i * 0.015, duration: 0.25 }}
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 + i * 0.02, duration: 0.2 }}
                   style={{
-                    padding: '7px 16px',
-                    fontSize: 13,
-                    color: 'rgba(255,255,255,0.55)',
-                    fontFamily: "'SF Mono', 'Menlo', monospace",
+                    borderRadius: 8,
+                    overflow: 'hidden',
+                    border: '1px solid rgba(255,69,58,0.3)',
+                    background: 'rgba(255,69,58,0.06)',
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    borderBottom:
-                      i < toDeletePaths.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                    flexDirection: 'column',
                   }}
                 >
-                  <span
+                  {/* Thumbnail */}
+                  <div style={{ position: 'relative', width: '100%', paddingBottom: '70%', flexShrink: 0 }}>
+                    <img
+                      src={toLocalSrc(filePath)}
+                      draggable={false}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                    {/* Red tint overlay */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'rgba(255,69,58,0.12)',
+                      }}
+                    />
+                    {/* Delete badge */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 5,
+                        right: 5,
+                        background: 'rgba(255,69,58,0.85)',
+                        borderRadius: 4,
+                        padding: '1px 5px',
+                        fontSize: 9,
+                        fontWeight: 700,
+                        color: '#fff',
+                        letterSpacing: '0.06em',
+                      }}
+                    >
+                      ✕
+                    </div>
+                  </div>
+                  {/* Filename */}
+                  <div
                     style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: '50%',
-                      background: '#ff453a',
-                      flexShrink: 0,
-                      opacity: 0.7,
+                      padding: '5px 7px',
+                      fontSize: 10,
+                      color: 'rgba(255,255,255,0.5)',
+                      fontFamily: "'SF Mono', 'Menlo', monospace",
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
                     }}
-                  />
-                  {basename(filePath)}
+                    title={basename(filePath)}
+                  >
+                    {basename(filePath)}
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -237,8 +326,45 @@ export function SummaryScreen({
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}
+          style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', alignItems: 'center' }}
         >
+          {/* BMC link — liquid glass */}
+          <button
+            onClick={() => window.api.openExternal('https://buymeacoffee.com/stevezzh')}
+            className="no-drag"
+            title="Buy me a coffee"
+            style={{
+              marginRight: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              background: 'rgba(255,255,255,0.07)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 20px rgba(0,0,0,0.25)',
+              cursor: 'pointer',
+              padding: '9px 16px',
+              borderRadius: 12,
+              transition: 'background 0.2s, box-shadow 0.2s, border-color 0.2s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.12)'
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'
+              e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.18), 0 6px 24px rgba(0,0,0,0.3)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.07)'
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
+              e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 20px rgba(0,0,0,0.25)'
+            }}
+          >
+            <img src={bmcLogo} alt="Buy me a coffee" style={{ width: 22, height: 22, objectFit: 'contain' }} />
+            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', fontWeight: 500, letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>
+              Buy me a coffee
+            </span>
+          </button>
+
           <button
             onClick={onBack}
             disabled={isDeleting}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FolderSelector } from './components/FolderSelector'
 import { ImageViewer } from './components/ImageViewer'
@@ -22,14 +22,18 @@ export default function App(): JSX.Element {
   const [screen, setScreen] = useState<AppScreen>('welcome')
   const [session, setSession] = useState<Session | null>(null)
   const [toDeletePaths, setToDeletePaths] = useState<string[]>([])
+  const [elapsedMs, setElapsedMs] = useState(0)
+  const cullingStartRef = useRef<number>(0)
 
   const handleFolderSelected = (folderPath: string, images: string[]): void => {
     setSession({ folderPath, images })
     setToDeletePaths([])
+    cullingStartRef.current = Date.now()
     setScreen('culling')
   }
 
   const handleCullingDone = (paths: string[]): void => {
+    setElapsedMs(Date.now() - cullingStartRef.current)
     setToDeletePaths(paths)
     setScreen('summary')
   }
@@ -106,6 +110,7 @@ export default function App(): JSX.Element {
             <SummaryScreen
               totalImages={session.images.length}
               toDeletePaths={toDeletePaths}
+              elapsedMs={elapsedMs}
               onConfirmDelete={handleConfirmDelete}
               onBack={handleBackFromSummary}
               onStartOver={handleReset}
