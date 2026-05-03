@@ -110,6 +110,10 @@ export function ImageViewer({ images, folderPath, onDone }: Props): JSX.Element 
   const progress = culler.totalCount > 0 ? culler.processedCount / culler.totalCount : 0
   const folderName = basename(folderPath)
 
+  // Format badge — shown for non-JPEG files
+  const currentExt = (culler.currentImage ?? '').split('.').pop()?.toUpperCase() ?? ''
+  const isRawFormat = currentExt !== '' && !['JPG', 'JPEG'].includes(currentExt)
+
   // ── Done screen ────────────────────────────────────────────────────────────
   if (culler.isDone) {
     return (
@@ -214,6 +218,23 @@ export function ImageViewer({ images, folderPath, onDone }: Props): JSX.Element 
         </div>
 
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* RAW format badge */}
+          {isRawFormat && (
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                padding: '2px 7px',
+                borderRadius: 5,
+                background: 'rgba(251,191,36,0.12)',
+                color: '#fbbf24',
+                border: '1px solid rgba(251,191,36,0.28)',
+              }}
+            >
+              {currentExt}
+            </span>
+          )}
           {culler.currentDecision && (
             <motion.span
               key={culler.viewIndex}
@@ -341,6 +362,7 @@ export function ImageViewer({ images, folderPath, onDone }: Props): JSX.Element 
             <img
               src={toLocalSrc(culler.currentImage)}
               draggable={false}
+              decoding="async"
               onClick={e => e.stopPropagation()}
               style={{
                 position: 'absolute',

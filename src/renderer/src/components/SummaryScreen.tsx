@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useT } from '../i18n'
 import bmcLogo from '../assets/bmc-logo.png'
@@ -249,44 +249,7 @@ export function SummaryScreen({
                   }}
                 >
                   {/* Thumbnail */}
-                  <div style={{ position: 'relative', width: '100%', paddingBottom: '70%', flexShrink: 0 }}>
-                    <img
-                      src={toLocalSrc(filePath)}
-                      draggable={false}
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                      }}
-                    />
-                    {/* Red tint overlay */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background: 'rgba(255,69,58,0.12)',
-                      }}
-                    />
-                    {/* Delete badge */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: 5,
-                        right: 5,
-                        background: 'rgba(255,69,58,0.85)',
-                        borderRadius: 4,
-                        padding: '1px 5px',
-                        fontSize: 9,
-                        fontWeight: 700,
-                        color: '#fff',
-                        letterSpacing: '0.06em',
-                      }}
-                    >
-                      ✕
-                    </div>
-                  </div>
+                  <GridThumb src={toLocalSrc(filePath)} />
                   {/* Filename */}
                   <div
                     style={{
@@ -428,6 +391,83 @@ export function SummaryScreen({
             </button>
           )}
         </motion.div>
+      </div>
+    </div>
+  )
+}
+
+// ── GridThumb ─────────────────────────────────────────────────────────────────
+// Handles loading/error state per thumbnail cell, including async RAW conversion
+
+function GridThumb({ src }: { src: string }): JSX.Element {
+  const [state, setState] = useState<'loading' | 'loaded' | 'error'>('loading')
+
+  const onLoad = useCallback(() => setState('loaded'), [])
+  const onError = useCallback(() => setState('error'), [])
+
+  return (
+    <div style={{ position: 'relative', width: '100%', paddingBottom: '70%', flexShrink: 0, background: 'rgba(0,0,0,0.3)' }}>
+      {/* Loading spinner — shown while RAW converts */}
+      {state === 'loading' && (
+        <div style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
+            style={{
+              width: 16, height: 16,
+              border: '2px solid rgba(255,255,255,0.06)',
+              borderTopColor: 'rgba(255,255,255,0.3)',
+              borderRadius: '50%',
+            }}
+          />
+        </div>
+      )}
+
+      {/* Error placeholder */}
+      {state === 'error' && (
+        <div style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', gap: 4,
+        }}>
+          <span style={{ fontSize: 18, opacity: 0.2 }}>⚠</span>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>No preview</span>
+        </div>
+      )}
+
+      {/* Actual image */}
+      <img
+        src={src}
+        draggable={false}
+        decoding="async"
+        onLoad={onLoad}
+        onError={onError}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          display: state === 'loaded' ? 'block' : 'none',
+        }}
+      />
+
+      {/* Red tint overlay */}
+      {state === 'loaded' && (
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,69,58,0.12)' }} />
+      )}
+
+      {/* Delete badge */}
+      <div style={{
+        position: 'absolute', top: 5, right: 5,
+        background: 'rgba(255,69,58,0.85)',
+        borderRadius: 4, padding: '1px 5px',
+        fontSize: 9, fontWeight: 700, color: '#fff', letterSpacing: '0.06em',
+      }}>
+        ✕
       </div>
     </div>
   )

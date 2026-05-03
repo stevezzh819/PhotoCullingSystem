@@ -16,6 +16,18 @@ export function useImageCuller(images: string[]) {
     setDecisions(new Map())
     setHistory([])
     preloadCacheRef.current.clear()
+
+    // Eagerly preload the first 12 images the moment a folder loads.
+    // The main process warms its buffer cache in parallel, so these
+    // Image fetches will hit memory instead of disk by the time the
+    // user reaches each one.
+    const WARMUP = Math.min(12, images.length)
+    for (let i = 0; i < WARMUP; i++) {
+      const img = new Image()
+      img.src = `local-file://img?p=${encodeURIComponent(images[i])}`
+      img.decode().catch(() => {})
+      preloadCacheRef.current.set(i, img)
+    }
   }, [images])
 
   const isDone = images.length > 0 && decisions.size >= images.length
